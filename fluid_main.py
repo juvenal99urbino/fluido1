@@ -37,9 +37,9 @@ def test_quiver(grid, viz, solver):
     plt.show()
 
 if __name__ == "__main__":
-    grid = FluidGrid(nx=50, ny=50, dx=1.0)
+    grid = FluidGrid(nx=150, ny=70, dx=1.0)
     viz = FluidVisualization(grid)
-    solver = FluidSolver(grid, over_relaxation=1.4, dt=1)
+    solver = FluidSolver(grid, over_relaxation=1.8, dt=1)
     #grid.customtest()  # Reinicializar para el test
 
     # modo interactivo: actualizar la misma figura sin abrir nuevas ventanas
@@ -52,12 +52,12 @@ if __name__ == "__main__":
             solver.general_step()
 
             ax.clear()
-            viz.plot_velocity_field(title=f"Velocidades - paso {i+1}", ax=ax)
+            viz.plot_smoke(ax=ax, title="Smoke Field")
 
             # forzar redibujado y permitir eventos GUI
             fig.canvas.draw()
             fig.canvas.flush_events()
-            plt.pause(0.1)                      # espera 0.1 s entre actualizaciones
+            #plt.pause(0.01)                      # espera 0.1 s entre actualizaciones
     except KeyboardInterrupt:
         pass
     finally:

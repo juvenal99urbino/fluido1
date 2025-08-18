@@ -67,7 +67,7 @@ class FluidSolver:
                 v[i, j]   += d * (wB[i, j] / s_ij)
                 v[i+1, j] -= d * (wT[i, j] / s_ij)
 
-    def solve(self, iterations=300):
+    def solve(self, iterations=70):
         for _ in range(iterations):
             self.seidel_step()
 
@@ -161,6 +161,41 @@ class FluidSolver:
         # copiar valores actualizados de vuelta (preserva bordes)
         self.grid.v = self.grid.temp_v.copy()     # ← FIX-5
 
+    def advect_smoke(self):
+        # preservar estado previo
+        self.grid.temp_smoke[:] = self.grid.smoke
+
+        dx = self.grid.dx
+        dt = self.dt
+
+        # recorre centros de celda
+        for i in range(self.grid.ny):
+            for j in range(self.grid.nx):
+                # CAMBIO 2: no adveccionar paredes/bordes/obstáculos
+                if self.grid.cell_type[i, j] == 0:
+                    continue
+
+                # centro físico de la celda (j,i)
+                x0 = dx * (j + 0.5)
+                y0 = dx * (i + 0.5)
+
+                # velocidad en el centro (promedio de caras MAC)
+                u_center = 0.5 * (self.grid.u[i, j] + self.grid.u[i, j+1])
+                v_center = 0.5 * (self.grid.v[i, j] + self.grid.v[i+1, j])
+
+                # backtrace
+                x1 = x0 - dt * u_center
+                y1 = y0 - dt * v_center
+
+                # CAMBIO 1: samplear campo centrado → restar 0.5*dx en ambos ejes
+                self.grid.temp_smoke[i, j] = self.sample_field(self.grid.smoke,
+                                                            x1 - 0.5 * dx,
+                                                            y1 - 0.5 * dx)
+
+        # escribir resultado (bordes quedan preservados por el continue)
+        self.grid.smoke = self.grid.temp_smoke.copy()
+
+
     def add_gravity(self, g=9.81):
         """Añade un término de gravedad al campo de velocidades."""
         self.grid.v[:, :] -= g * self.dt
@@ -171,5 +206,6 @@ class FluidSolver:
         self.solve()
         self.advect_u()
         self.advect_v()
+        self.advect_smoke()
 
 

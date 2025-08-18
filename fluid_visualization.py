@@ -66,3 +66,40 @@ class FluidVisualization:
             
         return divergence
 
+    def plot_smoke(self, title="Smoke", ax=None):
+        """
+        Plotea el campo 'smoke' (almacenado en centros) en un único eje.
+        Si se pasa `ax` actualiza en sitio (no crea nueva figura ni nuevas colorbars).
+        """
+        smoke = self.grid.smoke.copy()
+        
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            show_now = True
+        else:
+            show_now = False
+
+        # Si ya existe una imagen en el eje, actualizarla para evitar múltiples colorbars
+        if ax.images:
+            im = ax.images[0]
+            im.set_data(smoke)
+            im.set_clim(np.nanmin(smoke), np.nanmax(smoke))
+            ax.set_title(title)
+            ax.set_xlabel('x')
+            ax.set_ylabel('y')
+            ax.set_aspect('equal')
+
+
+        else:
+            ax.clear()
+            im = ax.imshow(smoke, cmap='gray', origin='lower', aspect='equal')
+            ax.set_title(title)
+            ax.set_xlabel('x')
+            ax.set_ylabel('y')
+            ax.set_aspect('equal')
+
+
+        if show_now:
+            plt.show()
+
+        return smoke

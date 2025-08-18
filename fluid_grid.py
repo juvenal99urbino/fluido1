@@ -13,6 +13,7 @@ class FluidGrid:
 
         self.pressure = np.zeros((ny, nx))
         self.smoke= np.zeros((ny, nx))
+        self.temp_smoke = np.zeros((ny, nx))
         self.divergence = np.zeros((ny, nx))
         
         #Marca que casillas son accesibles (1) o no (0)
@@ -35,6 +36,7 @@ class FluidGrid:
         self.u[20:30, 20:30]=1
 
     def add_source(self):
-        self.u[20:30,10:20]=1
+        self.u[33:38,10:20]=1
+        self.smoke[33:38,10:20]=1
 
 
