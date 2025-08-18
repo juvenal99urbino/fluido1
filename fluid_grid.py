@@ -8,8 +8,11 @@ class FluidGrid:
 
         self.u = np.zeros((ny, nx+1))  # x-component of velocity
         self.v = np.zeros((ny+1, nx))  # y-component of velocity
+        self.temp_u = np.zeros((ny, nx+1))
+        self.temp_v = np.zeros((ny+1, nx))
 
         self.pressure = np.zeros((ny, nx))
+        self.smoke= np.zeros((ny, nx))
         self.divergence = np.zeros((ny, nx))
         
         #Marca que casillas son accesibles (1) o no (0)
@@ -30,4 +33,8 @@ class FluidGrid:
         self.u = np.zeros((self.ny, self.nx+1))  # x-component of velocity
         self.v = np.zeros((self.ny+1, self.nx))  # y-component of velocity
         self.u[20:30, 20:30]=1
+
+    def add_source(self):
+        self.u[20:30,10:20]=1
+
 

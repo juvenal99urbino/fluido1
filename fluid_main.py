@@ -39,13 +39,32 @@ def test_quiver(grid, viz, solver):
 if __name__ == "__main__":
     grid = FluidGrid(nx=50, ny=50, dx=1.0)
     viz = FluidVisualization(grid)
-    solver = FluidSolver(grid, over_relaxation=1.0)
-    
-    # Test 1: Campo de velocidades (quiver)
-    #test_quiver(grid, viz, solver)
-    
-    # Test 2: Divergencia (heatmaps)
-    test_divergence(grid, viz, solver)
+    solver = FluidSolver(grid, over_relaxation=1.4, dt=1)
+    #grid.customtest()  # Reinicializar para el test
+
+    # modo interactivo: actualizar la misma figura sin abrir nuevas ventanas
+    plt.ion()
+    fig, ax = plt.subplots(figsize=(8, 8))
+
+    try:
+        for i in range(100):                     # ajustar número de pasos si hace falta
+            grid.add_source()  # añadir fuente de velocidad
+            solver.general_step()
+
+            ax.clear()
+            viz.plot_velocity_field(title=f"Velocidades - paso {i+1}", ax=ax)
+
+            # forzar redibujado y permitir eventos GUI
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            plt.pause(0.1)                      # espera 0.1 s entre actualizaciones
+    except KeyboardInterrupt:
+        pass
+    finally:
+        plt.ioff()
+        plt.show()
+
+
 
 
 

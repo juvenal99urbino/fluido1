@@ -22,9 +22,13 @@ class FluidVisualization:
         else:
             show_now = False
         
+        # LIMPIAR EL EJE ANTES DE PLOTEAR
+        ax.clear()
+        
         ax.quiver(u_combined, v_combined, scale=10)
         ax.set_aspect('equal')
         ax.set_title(title)
+        ax.grid(True, alpha=0.3)
         
         if show_now:
             plt.show()
