@@ -36,7 +36,7 @@ class FluidGrid:
         self.u[20:30, 20:30]=1
 
     def add_source(self):
-        self.u[33:38,10:20]=1
+        self.u[33:38,10:20]=4
         self.smoke[33:38,10:20]=1
 
 

@@ -7,13 +7,13 @@ class FluidSolver:
         self.dt = dt
 
     def calculate_divergence(self):
-        # divergencia en centros de celda (ny, nx)
-        for j in range(self.grid.nx):
-            for i in range(self.grid.ny):
-                self.grid.divergence[i, j] = (
-                    - self.grid.u[i, j] + self.grid.u[i, j+1]
-                    - self.grid.v[i, j] + self.grid.v[i+1, j]
-                )
+        dx = self.grid.dx
+        u = self.grid.u    # shape (ny, nx+1)
+        v = self.grid.v    # shape (ny+1, nx)
+        # du/dx en centros y dv/dy en centros
+        du_dx = (u[:, 1:] - u[:, :-1]) / dx         # shape (ny, nx)
+        dv_dy = (v[1:, :] - v[:-1, :]) / dx         # shape (ny, nx)
+        np.copyto(self.grid.divergence, du_dx + dv_dy)
 
     def calculate_nsum(self):
         """
@@ -189,8 +189,8 @@ class FluidSolver:
 
                 # CAMBIO 1: samplear campo centrado → restar 0.5*dx en ambos ejes
                 self.grid.temp_smoke[i, j] = self.sample_field(self.grid.smoke,
-                                                            x1 - 0.5 * dx,
-                                                            y1 - 0.5 * dx)
+                                                            x1- 0.5 * dx,
+                                                            y1- 0.5 * dx) #- 0.5 * dx
 
         # escribir resultado (bordes quedan preservados por el continue)
         self.grid.smoke = self.grid.temp_smoke.copy()
@@ -200,12 +200,24 @@ class FluidSolver:
         """Añade un término de gravedad al campo de velocidades."""
         self.grid.v[:, :] -= g * self.dt
 
+    def enforce_boundary_conditions(self):
+        self.grid.u[:, 0] = 0.0         # pared izquierda (u normal)
+        self.grid.u[:, -1] = 0.0        # pared derecha
+        self.grid.v[0, :] = 0.0         # pared inferior (v normal)
+        self.grid.v[-1, :] = 0.0        # pared superior
+
+
+
     def general_step(self):
         """Un paso general: advección, gravedad y corrección de presión."""
         #self.add_gravity()
-        self.solve()
+        self.solve( iterations=70)
+        # asegurar que la presión/proyección no haya introducido flujo a través de las paredes
+        self.enforce_boundary_conditions()
         self.advect_u()
         self.advect_v()
+        # también tras advección forzar condiciones de contorno (evita outflow por interpolación)
+        self.enforce_boundary_conditions()
         self.advect_smoke()
 
 

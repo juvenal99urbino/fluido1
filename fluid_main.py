@@ -37,17 +37,15 @@ def test_quiver(grid, viz, solver):
     plt.show()
 
 if __name__ == "__main__":
-    grid = FluidGrid(nx=150, ny=70, dx=1.0)
+    grid = FluidGrid(nx=80, ny=70, dx=1.0)
     viz = FluidVisualization(grid)
-    solver = FluidSolver(grid, over_relaxation=1.8, dt=1)
-    #grid.customtest()  # Reinicializar para el test
+    solver = FluidSolver(grid, over_relaxation=1.75, dt=1)
 
-    # modo interactivo: actualizar la misma figura sin abrir nuevas ventanas
     plt.ion()
     fig, ax = plt.subplots(figsize=(8, 8))
 
     try:
-        for i in range(100):                     # ajustar número de pasos si hace falta
+        for i in range(200):                     # ajustar número de pasos si hace falta
             grid.add_source()  # añadir fuente de velocidad
             solver.general_step()
 
@@ -57,7 +55,7 @@ if __name__ == "__main__":
             # forzar redibujado y permitir eventos GUI
             fig.canvas.draw()
             fig.canvas.flush_events()
-            #plt.pause(0.01)                      # espera 0.1 s entre actualizaciones
+            #plt.pause(0.01)                     
     except KeyboardInterrupt:
         pass
     finally:
